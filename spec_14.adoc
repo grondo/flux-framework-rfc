@@ -416,7 +416,7 @@ resources:
 '''
 Use Case 2:: Run N tasks across M nodes
 +
-Specific Example:: Run `hostname` 20 times on 4 nodoes, 5 per node
+Specific Example:: Run `hostname` 20 times on 4 nodes, 5 per node
 +
 Existing Equivalent::
 `srun -N4 -n20 hostname` or `srun -N4 --ntasks-per-node=5 hostname`
