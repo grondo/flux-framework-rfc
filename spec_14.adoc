@@ -585,6 +585,25 @@ resources:
     tasks:
       command: app
 
+'''
+Use Case 10:: Run N copies of a command with minimum amount of RAM per node
++
+Specific Example::
+Run 10 copies of `app` across 2 nodes with at least 4GB per node
++
+Existing Equivalent:: `srun -n10 -N2 --mem=4096 app`
++
+[source,yaml]
+tasks:
+    command: app
+    count: 10
+resources:
+    - type: node
+    count: 2
+    with:
+        type: memory
+        amount: 4G
+
 
 == References
 
