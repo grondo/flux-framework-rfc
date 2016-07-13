@@ -572,21 +572,24 @@ Existing Equivalent:: `srun -n 10 --mem-per-cpu=2048 app` or
 tasks:
   command: app
 resources:
-  - type: Memory
-    amount: 4GB
-  - type: core
-    count: 10
+  group:
+      count: 10
+      with:
+          - type: Memory
+          amount: 2GB
+          - type: core
 +
 or
 +
 [source,yaml]
 resources:
-  - type: Memory
-    amount: 4GB
-  - type: core
-    count: 10
-    tasks:
-      command: app
+    task:
+        count: 10
+        command: app
+        with:
+            - type: Memory
+            amount: 2GB
+            - type: core
 
 '''
 Use Case 10:: Run N copies of a command with minimum amount of RAM per node
