@@ -509,24 +509,22 @@ Existing Equivalent:: None Known
 +
 [source,yaml]
 resources:
-    - type: node
-      with:
-        - type: group # Note, special resource type "group" to add a level
-          tasks: 
-              command: read-db
-              count: 10
-          with: 
-            - core
-            - type: Memory
-              amount: 4GB
-        - type: group
-          tasks: 
-              command: db
-          with:
-            - type: Core
-              count: 6
-            - type: Memory
-              amount: 24GB
+  - type: node
+    with:
+      - type: task # Note, special resource type "task" to add a level
+        count: 10
+        command: read-db
+        with:
+          - core
+          - type: Memory
+            amount: 4GB
+      - type: task
+        command: db
+        with:
+          - type: Core
+            count: 6
+          - type: Memory
+            amount: 24GB
 
 '''
 Use Case 8:: Complex example from OAR
