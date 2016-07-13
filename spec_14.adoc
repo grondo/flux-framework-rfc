@@ -557,6 +557,34 @@ resources:
                 type: Core
 walltime: 4h
 
+'''
+Use Case 9:: Run command requesting minimum amount of RAM per core
++
+Specific Example::
+Run 10 copies of `app` across 10 cores with at least 2GB per core
++
+Existing Equivalent:: `srun -n 10 --mem-per-cpu=2048 app`
++
+[source,yaml]
+tasks:
+  command: app
+resources:
+  - type: Memory
+    amount: 4GB
+  - type: core
+    count: 10
++
+or
++
+[source,yaml]
+resources:
+  - type: Memory
+    amount: 4GB
+  - type: core
+    count: 10
+    tasks:
+      command: app
+
 
 == References
 
