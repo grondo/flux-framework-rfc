@@ -401,7 +401,167 @@ walltime {
 To implement basic resource manager functionality, the following use
 cases SHALL be supported by the jobspec:
 
-FIXME: Fill in
+'''
+Use Case 1:: Request Single Resource with Count
++
+Specific Example:: Request 4 nodes
++
+Existing Equivalent:: `salloc -N4`
++
+[source,yaml]
+resources:
+    type: node
+    count: 4
+
+'''
+Use Case 2:: Run N tasks across M nodes
++
+Specific Example:: Run `hostname` 20 times on 4 nodoes, 5 per node
++
+Existing Equivalent::
+`srun -N4 -n20 hostname` or `srun -N4 --ntasks-per-node=5 hostname`
++
+[source,yaml]
+resources:
+    type: node
+    count: 4
+    tasks:
+        command: hostname
+        count: 5
+
+'''
+Use Case 3:: Run N tasks across M nodes, unequal distribution
++
+Specific Example:: Run 5 copies of `hostname` across 4 nodes,
+default distribution
++
+Existing Equivalent:: `srun -n5 -N4 hostname`
++
+[source,yaml]
+tasks:
+    command: hostname
+    count: 5
+with:
+    type: node
+    count: 4
+
+
+'''
+Use Case 4:: Run N tasks, Require M cores per task
++
+Specific Example:: Run 10 copies of `myapp`, require 2 cores per copy,
+for a total of 20 cores
++
+Existing Equivalent:: `srun -n10 -c 2 myapp`
++
+[source,yaml]
+# FIXME: VALIDATE
+type: group
+tasks:
+    command: myapp
+with:
+    resources:
+        type: core
+        count: 2
+count: 10
+
+
+'''
+Use Case 5:: Request a range of a type of resource
++
+Specific Example:: Request between 3 and 30 nodes
++
+Existing Equivalent:: `salloc -N3-30`
++
+[source,yaml]
+resources:
+    type: node
+    count: [3:30]
+
+'''
+Use Case 6:: Request M nodes with a minimum number of sockets per node
+and cores per socket
++
+Specific Example:: Request 4 nodes with at least 2 sockets each,
+and 4 cores per socket
++
+Existing Equivalent::
+`srun -N4 --sockets-per-node=2 --cores-per-socket=4` or
+`srun -N4 -B '2:4:*'`
++
+[source,yaml]
+# FIXME: VALIDATE
+resources:
+    type: node
+    count: 4
+    with:
+        type: socket
+        count: 2
+        with:
+            type: core
+            count: 4
+
+'''
+Use Case 7:: Run different binaries with differing resource
+requirements as single program
++
+Specific Example:: 11 tasks, one node, first 10 using one core and 4G of RAM for
+`read-db`, last using 6 cores and 24G of RAM for `db`
++
+Existing Equivalent:: None Known
++
+[source,yaml]
+resources:
+    - type: node
+      with:
+        - type: group # Note, special resource type "group" to add a level
+          tasks: 
+              command: read-db
+              count: 10
+          with: 
+            - core
+            - type: Memory
+              amount: 4GB
+        - type: group
+          tasks: 
+              command: db
+          with:
+            - type: Core
+              count: 6
+            - type: Memory
+              amount: 24GB
+
+'''
+Use Case 8:: Complex example from OAR
++
+Specific Example::
+[quote, http://oar.imag.fr/docs/2.5/user/usecases.html#mixing-every-together]
+ask for 1 core on 2 nodes on the same cluster with 4096 GB of memory
+and Infiniband 10G + 1 cpu on 2 nodes on the same switch with bicore
+processors for a walltime of 4 hours
+
+Existing Equivalent::
++
+ oarsub -I -l "{memnode=4096 and ib10g='YES'}/cluster=1/nodes=2/core=1+{nbcore=2}/switch=1/nodes=2/cpu=1,walltime=4:0:0"
++
+[source,yaml]
+resources:
+    - type: Cluster
+      with:
+        - type: Node
+          count: 2
+          with:
+            - type: Memory
+              amount: 4096GB
+            - type: InfiniBand10G
+        - type: Switch
+          with:
+            type: Node
+            count: 2
+            with:
+                type: Core
+walltime: 4h
+
 
 == References
 
