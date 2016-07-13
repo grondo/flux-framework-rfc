@@ -455,14 +455,12 @@ for a total of 20 cores
 Existing Equivalent:: `srun -n10 -c 2 myapp`
 +
 [source,yaml]
-# FIXME: VALIDATE
 type: group
 tasks:
     command: myapp
 with:
-    resources:
-        type: core
-        count: 2
+    type: core
+    count: 2
 count: 10
 
 
