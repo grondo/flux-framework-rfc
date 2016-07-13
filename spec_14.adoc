@@ -305,6 +305,38 @@ resources:
         type: memory
         amount: 4G
 
+'''
+Use Case 11:: Request resources across multiple clusters
++
+Specific Example::
+Ask for 1 core on 15 nodes across 2 clusters (total = 30 cores)
++
+Existing Equivalent:: `oarsub -I -l /cluster=2/nodes=15/core=1`
++
+[source,yaml]
+resources:
+    - type: Cluster
+      count: 2
+      with:
+          - type: Node
+          count: 15
+          with:
+              - type: core
+
+'''
+Use Case 12: Request N cores across M switches
++
+Specific Example::
+Request 3 cores across 3 switches
++
+Existing Equivalent:: `oarsub -I -l /switch=3/core=1`
++
+[source,yaml]
+resources:
+    - type: Switch
+    count: 3
+    with:
+        - type: Core
 
 == References
 
