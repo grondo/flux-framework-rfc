@@ -406,7 +406,7 @@ Use Case 1:: Request Single Resource with Count
 +
 Specific Example:: Request 4 nodes
 +
-Existing Equivalent:: `salloc -N4`
+Existing Equivalent:: `salloc -N4` or `qsub -l nodes=4`
 +
 [source,yaml]
 resources:
@@ -420,6 +420,7 @@ Specific Example:: Run `hostname` 20 times on 4 nodes, 5 per node
 +
 Existing Equivalent::
 `srun -N4 -n20 hostname` or `srun -N4 --ntasks-per-node=5 hostname`
+or `qsub -l nodes=4,mppnppn=5`
 +
 [source,yaml]
 resources:
@@ -485,7 +486,8 @@ and 4 cores per socket
 +
 Existing Equivalent::
 `srun -N4 --sockets-per-node=2 --cores-per-socket=4` or
-`srun -N4 -B '2:4:*'`
+`srun -N4 -B '2:4:*'` or
+`oarsub -l nodes=4/sockets=2/cores=4`
 +
 [source,yaml]
 resources:
@@ -563,7 +565,8 @@ Use Case 9:: Run command requesting minimum amount of RAM per core
 Specific Example::
 Run 10 copies of `app` across 10 cores with at least 2GB per core
 +
-Existing Equivalent:: `srun -n 10 --mem-per-cpu=2048 app`
+Existing Equivalent:: `srun -n 10 --mem-per-cpu=2048 app` or
+
 +
 [source,yaml]
 tasks:
@@ -591,7 +594,8 @@ Use Case 10:: Run N copies of a command with minimum amount of RAM per node
 Specific Example::
 Run 10 copies of `app` across 2 nodes with at least 4GB per node
 +
-Existing Equivalent:: `srun -n10 -N2 --mem=4096 app`
+Existing Equivalent:: `srun -n10 -N2 --mem=4096 app` or
+`oarsub -p memnode=4096 -l nodes=2 "taktuk -c oarsh -f $OAR_FILE_NODES broadcast exec [app]`
 +
 [source,yaml]
 tasks:
