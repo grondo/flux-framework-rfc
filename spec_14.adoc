@@ -488,7 +488,6 @@ Existing Equivalent::
 `srun -N4 -B '2:4:*'`
 +
 [source,yaml]
-# FIXME: VALIDATE
 resources:
     type: node
     count: 4
