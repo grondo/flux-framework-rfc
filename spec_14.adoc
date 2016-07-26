@@ -412,8 +412,8 @@ Existing Equivalent:: `salloc -N4` or `qsub -l nodes=4`
 +
 [source,yaml]
 resources:
-    - type: node
-      count: 4
+  - type: node
+    count: 4
 
 '''
 Use Case 1.2:: Request a range of a type of resource
@@ -424,8 +424,8 @@ Existing Equivalent:: `salloc -N3-30`
 +
 [source,yaml]
 resources:
-    - type: node
-      count: "[3:30]"
+  - type: node
+    count: "[3:30]"
 
 '''
 Use Case 1.3:: Request M nodes with a minimum number of sockets per node
@@ -441,14 +441,14 @@ Existing Equivalent::
 +
 [source,yaml]
 resources:
-    - type: node
-      count: 4
-      with:
-        - type: socket
-          count: 2
-          with:
-            - type: core
-              count: 4
+  - type: node
+    count: 4
+    with:
+      - type: socket
+        count: 2
+        with:
+          - type: core
+            count: 4
 
 '''
 Use Case 1.4:: Complex example from OAR
@@ -495,7 +495,7 @@ resources:
     - type: cluster
       count: 2
       with:
-          - type: Node
+          - type: node
             count: 15
             with:
               - type: core
@@ -531,12 +531,18 @@ or
 +
 [source,yaml]
 resources:
+  - type: slot
+    label: default
+    count: 4
+    with:
     - type: node
-      count: 4
-      with:
-        - type: task
-          command: hostname
-          count: 5
+      count: 1
+
+tasks:
+  command: hostname
+  slot: default
+  count:
+    per_slot: 5
 
 '''
 Use Case 2.2:: Run N tasks across M nodes, unequal distribution
@@ -547,13 +553,16 @@ default distribution
 Existing Equivalent:: `srun -n5 -N4 hostname`
 +
 [source,yaml]
+resources:
+  - type: slot
+    count: 4
+    with:
+      - type: node
+        count: 1
 tasks:
-    - command: hostname
-      count: 5
-with:
-    - type: node
-      count: 4
-
+  - command: hostname
+    count:
+      total: 4
 '''
 Use Case 2.3:: Run N tasks, Require M cores per task
 +
@@ -563,14 +572,18 @@ for a total of 20 cores
 Existing Equivalent:: `srun -n10 -c 2 myapp`
 +
 [source,yaml]
+resources:
+  - type: slot
+    label: default
+    count: 10
+    with:
+      - type: core
+        count: 2
 tasks:
     - command: myapp
-      count: 10
-      with:
-          - type: core
-            count: 2
-
-
+      slot: default
+      count:
+	per_slot: 1
 '''
 Use Case 2.4:: Run different binaries with differing resource
 requirements as single program
@@ -584,20 +597,30 @@ Existing Equivalent:: None Known
 resources:
   - type: node
     with:
-      - type: task # Note, special resource type "task" to add a level
+      - type: slot
+        label: read-db
         count: 10
-        command: read-db
         with:
           - type: core
           - type: memory
             amount: 4GB
-      - type: task
-        command: db
+      - type: slot
+        label: db
+	count: 1
         with:
           - type: core
             count: 6
           - type: memory
             amount: 24GB
+tasks:
+  - command: read-db
+    slot: read-db
+    count:
+      per_slot: 1
+  - command: db
+    slot: db
+    count:
+      per_slot: 1
 
 '''
 Use Case 2.5:: Run command requesting minimum amount of RAM per core
@@ -609,28 +632,20 @@ Existing Equivalent:: `srun -n 10 --mem-per-cpu=2048 app`
 +
 [source,yaml]
 ----
-tasks:
-  - command: app
 resources:
-  - type: group
+  - type: slot
+    label: default
     count: 10
     with:
-    - type: Memory
+    - type: memory
       amount: 2GB
     - type: core
+tasks:
+  - command: app
+    slot: default
+    count:
+      per_slot: 1
 ----
-or
-+
-[source,yaml]
-resources:
-  - type: task
-    count: 10
-    command: app
-    with:
-      - type: Memory
-        amount: 2GB
-      - type: core
-
 '''
 Use Case 2.6:: Run N copies of a command with minimum amount of RAM per node
 +
@@ -642,15 +657,20 @@ Existing Equivalent:: `srun -n10 -N2 --mem=4096 app` or
 `oarsub -p memnode=4096 -l nodes=2 "taktuk -c oarsh -f $OAR_FILE_NODES broadcast exec [app]"`
 +
 [source,yaml]
-tasks:
-    - command: app
-      count: 10
 resources:
+  - type: slot
+    label: 2GB-node
+    count: 2
+    with:
     - type: node
-      count: 2
       with:
         - type: memory
           amount: 4G
+tasks:
+  - command: app
+    slot: 2G-node
+    count:
+      total: 10
 
 == References
 
