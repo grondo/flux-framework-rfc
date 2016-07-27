@@ -537,7 +537,6 @@ resources:
     with:
     - type: node
       count: 1
-
 tasks:
   command: hostname
   slot: default
@@ -563,6 +562,7 @@ tasks:
   - command: hostname
     count:
       total: 4
+
 '''
 Use Case 2.3:: Run N tasks, Require M cores per task
 +
@@ -580,10 +580,11 @@ resources:
       - type: core
         count: 2
 tasks:
-    - command: myapp
-      slot: default
-      count:
-	per_slot: 1
+  - command: myapp
+    slot: default
+    count:
+      per_slot: 1
+
 '''
 Use Case 2.4:: Run different binaries with differing resource
 requirements as single program
@@ -606,7 +607,7 @@ resources:
             amount: 4GB
       - type: slot
         label: db
-	count: 1
+        count: 1
         with:
           - type: core
             count: 6
