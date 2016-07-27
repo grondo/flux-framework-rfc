@@ -477,10 +477,10 @@ resources:
             count: 4
 
 '''
-Use case 1.4:: Exclusively allocate nodes, while constraining cores and
+Use Case 1.4:: Exclusively allocate nodes, while constraining cores and
 sockets.
 +
-Specific Example: Request an *exclusive* allocation of 4 nodes that have at
+Specific Example:: Request an *exclusive* allocation of 4 nodes that have at
 least two sockets and 4 cores per socket:
 +
 [source,yaml]
