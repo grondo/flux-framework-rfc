@@ -477,7 +477,29 @@ resources:
             count: 4
 
 '''
-Use Case 1.4:: Complex example from OAR
+Use case 1.4:: Exclusively allocate nodes, while constraining cores and
+sockets.
++
+Specific Example: Request an *exclusive* allocation of 4 nodes that have at
+least two sockets and 4 cores per socket:
++
+[source,yaml]
+version: 1
+walltime: 1h
+resources:
+  - type: slot
+    with:
+    - type: node
+      count: 4
+      with:
+        - type: socket
+          count: 2
+          with:
+            - type: core
+              count: 4
+
+'''
+Use Case 1.5:: Complex example from OAR
 +
 Specific Example::
 [quote, http://oar.imag.fr/docs/2.5/user/usecases.html#mixing-every-together]
@@ -510,7 +532,7 @@ resources:
 walltime: 4h
 
 '''
-Use Case 1.5:: Request resources across multiple clusters
+Use Case 1.6:: Request resources across multiple clusters
 +
 Specific Example::
 Ask for 1 core on 15 nodes across 2 clusters (total = 30 cores)
@@ -530,7 +552,7 @@ resources:
               - type: core
 
 '''
-Use Case 1.6:: Request N cores across M switches
+Use Case 1.7:: Request N cores across M switches
 +
 Specific Example::
 Request 3 cores across 3 switches
