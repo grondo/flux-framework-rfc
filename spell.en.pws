@@ -310,3 +310,9 @@ salloc
 srun
 walltime
 yaml
+mem
+mppnppn
+oarsh
+qsub
+taktuk
+myslot
