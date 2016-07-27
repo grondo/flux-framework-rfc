@@ -403,6 +403,26 @@ cases SHALL be supported by the jobspec:
 
 === Section 1: Resource only requests
 
+The following "resource only" requests are assumed to be the equivalent
+of existing resource manager batch job submission or allocation requests,
+i.e. equivalent to `oarsub`, `qsub`, and `salloc`. In terms a canonical
+jobspec, these requests are assumed to be requests to start and instance,
+i.e. run a single copy of `flux start` per allocated node.
+
+Thus, it should be assumed that all jobspec examples for use cases in
+Section 1 below have appended to them the following `tasks` block:
+
+[source,yaml]
+tasks:
+  - command: [ "flux", "start" ]
+    slot:
+      level: node
+    count:
+      per_task: 1
+
+
+Unless otherwise specified, all examples for walltime of 1 hour.
+
 '''
 Use Case 1.1:: Request Single Resource with Count
 +
@@ -411,6 +431,8 @@ Specific Example:: Request 4 nodes
 Existing Equivalent:: `salloc -N4` or `qsub -l nodes=4`
 +
 [source,yaml]
+version: 1
+walltime: 1h
 resources:
   - type: node
     count: 4
@@ -423,6 +445,8 @@ Specific Example:: Request between 3 and 30 nodes
 Existing Equivalent:: `salloc -N3-30`
 +
 [source,yaml]
+version: 1
+walltime: 1h
 resources:
   - type: node
     count: "[3:30]"
@@ -440,6 +464,8 @@ Existing Equivalent::
 `oarsub -l nodes=4/sockets=2/cores=4`
 +
 [source,yaml]
+version: 1
+walltime: 1h
 resources:
   - type: node
     count: 4
@@ -464,19 +490,20 @@ Existing Equivalent::
  oarsub -I -l "{memnode=4096 and ib10g='YES'}/cluster=1/nodes=2/core=1+{nbcore=2}/switch=1/nodes=2/cpu=1,walltime=4:0:0"
 +
 [source,yaml]
+version: 1
 resources:
-    - type: cluster
-      count: 1
-      with:
-        - type: node
-          count: 2
-          with:
-            - type: memory
-              amount: 4GB
-            - type: ib10g
-        - type: switch
-          with:
-            type: node
+  - type: cluster
+    count: 1
+    with:
+      - type: node
+        count: 2
+        with:
+          - type: memory
+            amount: 4GB
+          - type: ib10g
+      - type: switch
+        with:
+          type: node
             count: 2
             with:
                 - type: core
@@ -491,6 +518,8 @@ Ask for 1 core on 15 nodes across 2 clusters (total = 30 cores)
 Existing Equivalent:: `oarsub -I -l /cluster=2/nodes=15/core=1`
 +
 [source,yaml]
+version: 1
+walltime: 1h
 resources:
     - type: cluster
       count: 2
@@ -509,11 +538,13 @@ Request 3 cores across 3 switches
 Existing Equivalent:: `oarsub -I -l /switch=3/core=1`
 +
 [source,yaml]
+version: 1
+walltime: 1h
 resources:
-    - type: switch
-      count: 3
-      with:
-        - type: core
+  - type: switch
+    count: 3
+    with:
+      - type: core
 
 
 === Section 2: Resource and task jobspec
@@ -525,11 +556,13 @@ Specific Example:: Run `hostname` 20 times on 4 nodes, 5 per node
 +
 Existing Equivalent::
 `srun -N4 -n20 hostname` or `srun -N4 --ntasks-per-node=5 hostname`
-or 
+or
 +
 `qsub -l nodes=4,mppnppn=5`
 +
 [source,yaml]
+version: 1
+walltime: 1h
 resources:
   - type: slot
     label: default
@@ -552,16 +585,39 @@ default distribution
 Existing Equivalent:: `srun -n5 -N4 hostname`
 +
 [source,yaml]
+----
+version: 1
+walltime: 1h
+resources:
+  - type: node
+    count: 4
+tasks:
+  - command: hostname
+    slot:
+      level: node
+    count:
+      total: 5
+----
+or, with explicit task slots:
++
+[source,yaml]
+----
+version: 1
+walltime: 1h
 resources:
   - type: slot
     count: 4
+    label: myslot
     with:
       - type: node
         count: 1
 tasks:
   - command: hostname
+    slot:
+      label: myslot
     count:
-      total: 4
+      total: 5
+----
 
 '''
 Use Case 2.3:: Run N tasks, Require M cores per task
@@ -595,6 +651,8 @@ Specific Example:: 11 tasks, one node, first 10 using one core and 4G of RAM for
 Existing Equivalent:: None Known
 +
 [source,yaml]
+version: 1
+walltime: 1h
 resources:
   - type: node
     with:
@@ -633,6 +691,8 @@ Existing Equivalent:: `srun -n 10 --mem-per-cpu=2048 app`
 +
 [source,yaml]
 ----
+version: 1
+walltime: 1h
 resources:
   - type: slot
     label: default
@@ -658,6 +718,8 @@ Existing Equivalent:: `srun -n10 -N2 --mem=4096 app` or
 `oarsub -p memnode=4096 -l nodes=2 "taktuk -c oarsh -f $OAR_FILE_NODES broadcast exec [app]"`
 +
 [source,yaml]
+version: 1
+walltime: 1h
 resources:
   - type: slot
     label: 2GB-node
