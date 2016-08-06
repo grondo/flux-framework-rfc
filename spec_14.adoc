@@ -750,10 +750,10 @@ resources:
     - type: node
       with:
         - type: memory
-          amount: 4G
+          amount: 4GB
 tasks:
   - command: app
-    slot: 2G-node
+    slot: 2GB-node
     count:
       total: 10
 
