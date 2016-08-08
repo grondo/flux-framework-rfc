@@ -405,8 +405,8 @@ cases SHALL be supported by the jobspec:
 
 The following "resource only" requests are assumed to be the equivalent
 of existing resource manager batch job submission or allocation requests,
-i.e. equivalent to `oarsub`, `qsub`, and `salloc`. In terms a canonical
-jobspec, these requests are assumed to be requests to start and instance,
+i.e. equivalent to `oarsub`, `qsub`, and `salloc`. In terms of a canonical
+jobspec, these requests are assumed to be requests to start an instance,
 i.e. run a single copy of `flux start` per allocated node.
 
 Thus, it should be assumed that all jobspec examples for use cases in
@@ -420,8 +420,6 @@ tasks:
     count:
       per_task: 1
 
-
-Unless otherwise specified, all examples for walltime of 1 hour.
 
 '''
 Use Case 1.1:: Request Single Resource with Count
