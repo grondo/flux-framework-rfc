@@ -404,13 +404,13 @@ cases SHALL be supported by the jobspec:
 === Section 1: Resource only requests
 
 The following "resource only" requests are assumed to be the equivalent
-of existing resource manager batch job submission or allocation requests,
-i.e. equivalent to `oarsub`, `qsub`, and `salloc`. In terms of a canonical
-jobspec, these requests are assumed to be requests to start an instance,
-i.e. run a single copy of `flux start` per allocated node.
-
-Thus, it should be assumed that all jobspec examples for use cases in
-Section 1 below have appended to them the following `tasks` block:
+of existing resource manager batch job submission or allocation
+requests, i.e. equivalent to `oarsub`, `qsub`, and `salloc`. In terms
+of a canonical jobspec, these requests are assumed to be requests
+to start an instance, i.e. run a single copy of `flux start` per
+allocated node.  Thus, it should be assumed that all jobspec examples
+for use cases in Section 1 below have appended to them the following
+`tasks` block:
 
 [source,yaml]
 tasks:
