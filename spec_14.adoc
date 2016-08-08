@@ -520,12 +520,14 @@ resources:
 Use Case 1.5:: Complex example from OAR
 +
 Specific Example::
++
 [quote, http://oar.imag.fr/docs/2.5/user/usecases.html#mixing-every-together]
 ask for 1 core on 2 nodes on the same cluster with 4096 GB of memory
 and Infiniband 10G + 1 cpu on 2 nodes on the same switch with bicore
 processors for a walltime of 4 hours
 +
 Existing Equivalents::
++
 |===
 | OAR | `oarsub -I -l "{memnode=4096 and ib10g='YES'}/cluster=1/nodes=2/core=1+{nbcore=2}/switch=1/nodes=2/cpu=1,walltime=4:0:0"`
 |===
