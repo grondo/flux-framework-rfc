@@ -72,16 +72,16 @@ the following benefits are realized:
 
 For the purposes of this RFC there are three main user roles:
 
- owner, or resource owner
+ owner, instance owner, or resource owner
   The user under which a Flux instance is running, not privileged.
   This user is considered the owner of all resources to which the Flux
   instance is running.
 
- guest
+ guest user, or guest
   A user wishing to use services or run work in a Flux instance when
   they are not the instance owner.
 
- superuser
+ superuser, or root
   A user with access to perform required privileged operations during
   multi-user execution, such as gaining credentials of other users,
   system setup or initialization, container manipulation, etc. Typically
