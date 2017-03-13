@@ -155,14 +155,14 @@ with optional hooks for privileged setup, containment and so on.
 
 == Job Request Credential
 
-The proposed contents of the Job Request Credential is as follows
+The proposed contents of the Job Request Credential (*R*) as follows
 
- * User Request (`U`) (described below)
+ * User Request (*U*) (described below)
  * Assigned resource set
  * Timestamp and TTL
  * Owner Signature (of above fields)
 
-Where user request `U` is the signed original user request or reference
+Where *U* is the signed original user request or reference
 to such a request, which SHALL contain
 
  * Jobspec as per link:spec_14{outfilesuffix}[14/Canonical Job Specification]
@@ -183,9 +183,8 @@ Where above fields have the following specific meanings and requirements
  * _Intended recipient_ is set to the instance owner that is the target
    of the request. This ensures that the user's request cannot be
    used by another arbitrary user.
- * The _user signature_ signs all fields of the user request
- * The _owner signature_ signs all fields of the Job Request Credential
-   _including_ the user request and the user's signature
+ * The _user signature_ signs all fields of *U*
+ * The _owner signature_ signs all fields of *R* _including_ *U*
 
 
 == IMP Internal Operation
@@ -199,18 +198,18 @@ processing any input, including but not limited to
 
  * arguments
  * environment
- * processing of marshaled job request on stdin
+ * processing of marshaled job request *R* on stdin
  * connecting to instance to obtain any missing data or data
    referenced by content hash
 
 The underprivileged child then SHALL sanitize and canonicalize the
-job request and "share back" the canonicalized signed job request in a
-safe export of data to the privileged IMP parent.
+job request *R* into *R'*, and SHALL share the canonicalized signed
+*R'* in a safe export of data to the privileged IMP parent.
 
 === Request Verification
 
 Once the privileged IMP process has obtained the canonicalized Job
-Request, it SHALL perform the following verification steps:
+Request *R'*, it SHALL perform the following verification steps:
 
  1. Verify owner signature
  2. Verify owner has access to assigned resource set
@@ -222,7 +221,7 @@ Request, it SHALL perform the following verification steps:
 
 === IMP post-verification execution
 
-After request verification is complete, the `flux-security-imp`
+After *R'* verification is complete, the `flux-security-imp`
 invokes required job setup code as the superuser. This setup code SHALL
 be implemented as system-installed and verified plugins, and MAY include
 such things as
