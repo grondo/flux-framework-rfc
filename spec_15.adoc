@@ -206,6 +206,15 @@ The underprivileged child then SHALL sanitize and canonicalize the
 job request *R* into *R'*, and SHALL share the canonicalized signed
 *R'* in a safe export of data to the privileged IMP parent.
 
+Instance and IMP interactions SHALL be implemented as a plugin or set
+of plugins, to be provided by the instance owner. These plugins are
+required to allow input processing and data gathering to be tailored to
+the version of Flux the instance owner is running, which may be custom.
+Since these plugins are owner-provided, they MUST NOT be used for data
+integrity verification, or in any way modify the user request *U*. The
+plugins MAY be used to obtain data later used in verification, or otherwise
+interact with the instance.
+
 === Request Verification
 
 Once the privileged IMP process has obtained the canonicalized Job
