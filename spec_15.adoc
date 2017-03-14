@@ -233,10 +233,11 @@ Request *R'*, it SHALL perform the following verification steps:
 
 ==== Resource ownership verification
 
-Resources in Flux are initially owned by the *system owner*, i.e. the user
-which runs the system instance. Typically, this would be some special
-system user, e.g. `flux`. The system owner is the only trusted user
-and requests from this user SHALL NOT require verification.
+Resources in Flux are initially owned by the *system owner*, i.e. the
+user which runs the system instance. Typically, this would be some
+special system user, e.g. `flux`. The system owner is the only trusted
+user and resource ownership of requests from this user SHALL NOT require
+verification.
 
 In order to verify resource ownership for non-system users, the
 following requirements should be met:
