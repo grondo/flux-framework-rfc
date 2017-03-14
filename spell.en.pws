@@ -356,3 +356,5 @@ subcommands
 setuid
 canonicalize
 canonicalized
+IMP's
+revokable
