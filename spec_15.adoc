@@ -151,16 +151,17 @@ Once the verification step is complete, the privileged IMP will then
 change credentials to the guest user and exec the configured user work,
 with optional hooks for privileged setup, containment and so on.
 
-== Job Request Credential
+== Job Request
 
-The proposed contents of the owner's Job Request Token (*R*) as follows
+The proposed contents of the owner's Job Request (*R*) as follows
 
  * User Request (*U*) (described below)
  * Assigned resource set
  * Timestamp and TTL
+ * UUID
  * Owner Signature (of above fields)
 
-Where *U* is the User Request Token or reference to such a request,
+Where *U* is the User Request or reference to such a request,
 which SHALL contain
 
  * Jobspec as per link:spec_14{outfilesuffix}[14/Canonical Job Specification]
@@ -218,13 +219,46 @@ interact with the instance.
 Once the privileged IMP process has obtained the canonicalized Job
 Request *R'*, it SHALL perform the following verification steps:
 
- 1. Verify owner signature
+ 1. Verify integrity and authenticity of *R'*
  2. Verify owner has access to assigned resource set
- 3. Verify guest signature on user request `U`
- 4. Verify TTL on Job and User requests
- 5. Verify recipient matches resource owner
+ 3. Verify integrity and authenticity of *U*
+ 4. Verify TTL on *R'* and *U*
+ 5. Verify recipient field in *U* matches resource owner
  6. Verify, if included, that assigned resource set is a strict subset
     of the allowed resource set
+
+==== Resource ownership verification
+
+Resources in Flux are initially owned by the *system owner*, i.e. the user
+which runs the system instance. Typically, this would be some special
+system user, e.g. `flux`. The system owner is the only trusted user
+and requests from this user SHALL NOT require verification.
+
+In order to verify resource ownership for non-system users, the
+following requirements should be met:
+
+ * The IMP SHALL support some sort of containment strategy, implemented
+   via plugins for maximum flexibility.
+ * The IMP's container mechanism MUST support, at a minimum, process
+   tracking functionality capable of creating inescapable process groups.
+ * The IMP's container strategy MUST be hierarchical, such that containers
+   for jobs within an instance are created as sub-containers of
+   container of the parent.
+ * The IMP SHALL keep an original copy of the request *R* as ancillary
+   data for each container.
+
+With the following requirements met, the IMP may verify resource
+ownership by ensuring that the current container includes the
+resources in the assigned resource set, and that the invoking user
+is owner of the current container.
+
+==== Revoking resource ownership
+
+Resource ownership MUST be revokable. The result of a revocation SHALL
+include termination of all processes currently running in the container
+associated with the revoked resource grant. A revocation is recursive,
+and removes the container and all child containers, including ancillary
+data.
 
 === IMP post-verification execution
 
@@ -249,20 +283,6 @@ the security IMP is replaced by the guest user processes.
 A multi-user instance of Flux not only requires the ability to execute
 work as a guest user, but it must also have privilege to monitor and
 kill these processes as part of normal resource manager operation.
-The following requirements are considered necessary and sufficient for
-this functionality.
-
- * The IMP MUST include some mechanism for process tracking.
- * The IMP SHALL implement a method to determine which guest user
-   processes are allowed to be signaled or terminated by the owner.
- * The process tracking implementation SHALL be defined by a plugin,
-   such that it is possible for the IMP to implement different process
-   tracking mechanisms on different systems.
- * The owner's operational abilities on guest user processes SHALL
-   be limited to those strictly necessary for process signaling, status,
-   and control.
- * In the case process tracking functionality is not available, the Flux
-   Security IMP should refuse to function.
 
 ==== Signaling and terminating jobs in a multi-user instance
 
