@@ -116,38 +116,36 @@ but disallowing sub-instance jobs access to multi-user capabilities.
 
 === Overall Design
 
-The operation of the Flux Security IMP is based on the use of signed
-request credentials by both the resource owner and a guest user that
-wants to make use of those resources.
+The operation of the Flux Security IMP is based on the use of structured
+request tokens by both the resource owner and a guest user requesting use
+of those resources. Each of these tokens have a guarantee of data
+integrity and authenticity, such that these requests cannot be modified
+in an unauthorized or undetectable manner, and the identity of the creator
+may be absolutely verified.
 
 When a guest makes a request for a job to a multi-user instance of
-Flux, the guest will create a request with information such as the job
-specification, a time-to-live, and authorized resource owner, and signs
-that request, thereby authorizing a specific owner to execute that request
-on behalf of the guest.
+Flux, the guest will create a message with information such as the job
+specification, a time-to-live, and authorized resource owner, and then
+uses IMP client API to sign all fields of the message. The signed message
+becomes the a user request token which authorizes the resource owner to
+execute the request at some point on behalf of the guest.
 
-The signed request then becomes part of the user's job. It cannot be
-tampered with or accidentally altered because of the guest user's
-signature.  When the job is scheduled by the instance, the owner
-assigns a resource set to the job, and signs that data _including_ the
-user's original request. The resource owner's signature and the assigned
-resources, in addition to an additional time-to-live, become a job request
-credential that authorizes the guest user access to the specific resources
-in the resource set.
+The signed request then becomes part of the user's job.  When the job is
+scheduled by the instance, the owner assigns a resource set to the job,
+and signs that data _including_ the user's original request. The resource
+owner's signature and the assigned resources, in addition to an additional
+time-to-live, become a job request token that authorizes the guest
+user access to the specific resources in the resource set.
 
-This final signed job request becomes the input to the
+This final signed job request token becomes the input to the
 `flux-security-imp` process. This allows the IMP to verify that the
 resource owner has granted certain resources to a guest user, and that
 the guest has authorized the resource owner to execute specific work on
 their behalf.
 
-To verify signatures in the request, the IMP needs access to
-the public keys of both owner and guest. The mechanism by which these
-keys are obtained is outside of the scope of this RFC. However it is
-assumed that the mechanism will be implemented as a plugin, and that
-public certificates may be distributed through site-specific means,
-though it may be feasible to store and distribute public keys through
-Flux instances themselves using certificates signed by a trusted CA.
+The IMP verifies the integrity and authenticity of the owner's request
+token in addition to the guest users request token using configured
+plugins that implement this functionality.
 
 Once the verification step is complete, the privileged IMP will then
 change credentials to the guest user and exec the configured user work,
@@ -155,15 +153,15 @@ with optional hooks for privileged setup, containment and so on.
 
 == Job Request Credential
 
-The proposed contents of the Job Request Credential (*R*) as follows
+The proposed contents of the owner's Job Request Token (*R*) as follows
 
  * User Request (*U*) (described below)
  * Assigned resource set
  * Timestamp and TTL
  * Owner Signature (of above fields)
 
-Where *U* is the signed original user request or reference
-to such a request, which SHALL contain
+Where *U* is the User Request Token or reference to such a request,
+which SHALL contain
 
  * Jobspec as per link:spec_14{outfilesuffix}[14/Canonical Job Specification]
  * UUID
@@ -313,17 +311,8 @@ is still a work in progress.
 
  * _Executing arbitrary process as another user_: The entirety of a user
    job request, including executables, arguments, working directory,
-   environment variables, etc, is signed by the user. Without access
-   to user's private key  a request cannot be forged, even by the
-   instance owner.
-
- * _Spoofing a user key_, where `flux-security-imp` is fooled into using
-   an invalid or manufactured public key for a guest user, thereby allowing a
-   different user or instance owner to run arbitrary code as another user.
-   A method for administrative verification of public keys will be used,
-   e.g. public certificates signed by a trusted authority, or an out-of-band,
-   trusted key infrastructure will be utilized. The source of the verification
-   SHALL be part of configuration under control of system admins *only*.
+   environment variables, etc, has an integrity guarantee, therefore
+   a request cannot be forged, even by the instance owner.
 
  * _Replay attacks_, where a user's job request is run again without their
    express permission, or a request is taken to another system and executed
