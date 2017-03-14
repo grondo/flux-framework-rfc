@@ -77,6 +77,10 @@ For the purposes of this RFC there are three main user roles:
   This user is considered the owner of all resources to which the Flux
   instance is running.
 
+ system owner
+  The user under which the system instance of Flux is running.
+  The default owner of all resources on the system.
+
  guest user, or guest
   A user wishing to use services or run work in a Flux instance when
   they are not the instance owner.
