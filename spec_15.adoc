@@ -317,22 +317,6 @@ subcommand which, using the process tracking functionality, SHALL allow
 an instance owner to signal or terminate any guest processes including
 ancestors thereof that were started by the owner's instance.
 
-==== Flux job prolog and epilog
-
-A multi-user instance of Flux may also require the ability to run job
-_prolog_ and _epilog_ for jobs. These scripts are typically site-supplied
-administrative scripts which are expected to run as a privileged user,
-and therefore will require the IMP to execute. In support of prolog
-and epilog scripts, the IMP has the following requirements:
-
- * The IMP SHALL implement `prolog` and `epilog` subcommands which allow
-   a multi-user instance owner to run a system configured script.
- * When run in `prolog` or `epilog` mode, the IMP MUST return the
-   exit status of the script to the caller.
- * The IMP MAY contain a method to limit execution of job prolog
-   and epilog scripts to a user or set of users. This can be used
-   to limit prolog/epilog script execution to system instances only.
-
 === Credential Format
 
 TBD
