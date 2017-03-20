@@ -223,31 +223,31 @@ processing any input, including but not limited to
  * arguments
  * environment
  * processing of marshaled job request *_R_* on stdin
- * connecting to instance to obtain any missing data or data
-   referenced by content hash
 
-The underprivileged child then SHALL sanitize and canonicalize the
-job request *_R_* into *_R'_*, and SHALL share the canonicalized signed
-*_R'_* in a safe export of data to the privileged IMP parent.
+Privilege separation is used to minimize the code running with root
+privileges, and to avoid parsing and processing of possibly untrusted
+data in an address space with elevated privileges. For instance, an
+attacker could attempt to execute the IMP with poorly formatted
+data in an attempt to exploit a weakness in a JSON library. When
+run with privilege separation however, JSON parsing would occur
+with credentials of the IMP inoker, thus eliminating any impact
+from a successful exploit.
 
-Instance and IMP interactions SHALL be implemented as a plugin or set
-of plugins, to be provided by the instance owner. These plugins are
-required to allow input processing and data gathering to be tailored to
-the version of Flux the instance owner is running, which may be custom.
-Since these plugins are owner-provided, they MUST NOT be used for data
-integrity verification, or in any way modify the user request *_J_*. The
-plugins MAY be used to obtain data later used in verification, or otherwise
-interact with the instance.
+Once the unprivileged portion of the IMP has parsed all input and
+environment and command line parameters, it SHALL notify the
+privileged process of successful completion and export *R* to
+a place where the privileged process can safely utilize it.
+At this point the unprivileged process MAY exit.
 
 === Request Verification
 
-Once the privileged IMP process has obtained the canonicalized Job
-Request *_R'_*, it SHALL perform the following verification steps:
+Once the privileged IMP process has obtained the Job Request *_R_*,
+it SHALL perform the following verification steps:
 
- 1. Verify integrity and authenticity of *_R'_*
+ 1. Verify integrity and authenticity of *_R_*
  2. Verify owner has access to assigned resource set
  3. Verify integrity and authenticity of *_J_*
- 4. Verify TTL on *_R'_* and *_J_*
+ 4. Verify TTL on *_R_* and *_J_*
  5. Verify recipient field in *_J_* matches resource owner
  6. Verify, if included, that assigned resource set is a strict subset
     of the allowed resource set
@@ -288,7 +288,7 @@ data.
 
 === IMP post-verification execution
 
-After *_R'_* verification is complete, the `flux-security-imp`
+After verification of *_R_* is complete, the `flux-security-imp`
 invokes required job setup code as the superuser. This setup code SHALL
 be implemented as system-installed and verified plugins, and MAY include
 such things as
@@ -299,10 +299,11 @@ such things as
  * state cleanup
 
 Once privileged setup is complete, the security IMP SHALL generate a log
-message or other audit trail for the individual request.  Then IMP then
+message or other audit trail for the individual request.  The IMP then
 SHALL proceed to obtain credentials of the guest user and finally exec(2)
-the work as encoded in the signed user request. After the call to exec(2)
-the security IMP is replaced by the guest user processes.
+either explicit command in *J*, or a *job shell* as specified by the
+user or system configuration. After the call to exec(2) the security IMP
+is replaced by the guest user process, and is no longer active.
 
 === Other IMP operational requirements
 
