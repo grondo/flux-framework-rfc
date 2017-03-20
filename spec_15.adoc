@@ -121,39 +121,60 @@ but disallowing sub-instance jobs access to multi-user capabilities.
 === Overall Design
 
 The operation of the Flux Security IMP is based on the use of structured
-request tokens by both the resource owner and a guest user requesting use
-of those resources. Each of these tokens have a guarantee of data
-integrity and authenticity, such that these requests cannot be modified
-in an unauthorized or undetectable manner, and the identity of the creator
-may be absolutely verified.
+request tokens by both the instance owner with control of some resources
+and a guest user requesting use of those resources. Each of these tokens
+have a guarantee of data integrity and authenticity, such that these requests
+cannot be modified in an unauthorized or undetectable manner, and the
+identity of the creators may be absolutely verified.
 
 When a guest makes a request for a job to a multi-user instance of
 Flux, the guest will create a message with information such as the job
 specification, a time-to-live, and authorized resource owner, and then
 uses IMP client API to sign all fields of the message. The signed message
-becomes the a user request token which authorizes the resource owner to
+becomes the user request token *J* which authorizes the resource owner to
 execute the request at some point on behalf of the guest.
 
-The signed request then becomes part of the user's job.  When the job is
+This signed request then becomes part of the user's job.  When the job is
 scheduled by the instance, the owner assigns a resource set to the job,
 and signs that data _including_ the user's original request. The resource
 owner's signature and the assigned resources, in addition to an additional
-time-to-live, become a job request token that authorizes the guest
+time-to-live, become a job request token *R* which authorizes the guest
 user access to the specific resources in the resource set.
 
-This final signed job request token becomes the input to the
-`flux-security-imp` process. This allows the IMP to verify that the
+This final signed job request token *R* becomes the input to the
+Flux IMP executable. This allows the IMP to verify that the
 resource owner has granted certain resources to a guest user, and that
 the guest has authorized the resource owner to execute specific work on
 their behalf.
 
-The IMP verifies the integrity and authenticity of the owner's request
-token in addition to the guest users request token using configured
-plugins that implement this functionality.
+The IMP verifies the integrity and authenticity of both *R* and *J*
+using cryptographic methods provided by plugins.  Once the verification
+step is complete, the privileged IMP will invoke system configured
+plugins for setup and containment, then change credentials to the
+guest user, and finally execute the processes of the job as specified
+in *J*.
 
-Once the verification step is complete, the privileged IMP will then
-change credentials to the guest user and exec the configured user work,
-with optional hooks for privileged setup, containment and so on.
+In most cases, the IMP will execute a *job shell* on behalf of the user,
+passing the verfied *J* as input to the shell. The shell itself is
+provided either by the user or by system configuration, but should not be
+provided or modified by the instance owner. The shell re-verifies
+integrity and authenticity of *J* before proceeding, then interprets
+the jobspec contained in *J* to determine the set of tasks to invoke
+on the current resource set.
+
+[NOTE]
+It may be noted that the user's request *J* is verified twice when a job
+shell is invoked, and this is by design. The IMP verifes *J* to avoid
+passing tainted input to the job shell, which runs as the guest user.
+The shell re-verifies *J* because it has no guarantee that the caller
+has already done this verification, or that *J* has not been changed
+since any past verification.
+
+Figure 1 below summarizes the overall role of the IMP in a multi-user
+Flux instance.
+
+.Depiction of multi-user Flux IMP overall design. Here user `bob` is the instance owner, and `alice` is a guest.
+image::data/spec_15/imp.png[width=600]
 
 == Job Request
 
