@@ -159,13 +159,13 @@ with optional hooks for privileged setup, containment and so on.
 
 The proposed contents of the owner's Job Request (*R*) as follows
 
- * User Request (*U*) (described below)
+ * User Request (*J*) (described below)
  * Assigned resource set
  * Timestamp and TTL
  * UUID
  * Owner Signature (of above fields)
 
-Where *U* is the User Request or reference to such a request,
+Where *J* is the User Request or reference to such a request,
 which SHALL contain
 
  * Jobspec as per link:spec_14{outfilesuffix}[14/Canonical Job Specification]
@@ -186,8 +186,8 @@ Where above fields have the following specific meanings and requirements
  * _Intended recipient_ is set to the instance owner that is the target
    of the request. This ensures that the user's request cannot be
    used by another arbitrary user.
- * The _user signature_ signs all fields of *U*
- * The _owner signature_ signs all fields of *R* _including_ *U*
+ * The _user signature_ signs all fields of *J*
+ * The _owner signature_ signs all fields of *R* _including_ *J*
 
 
 == IMP Internal Operation
@@ -214,7 +214,7 @@ of plugins, to be provided by the instance owner. These plugins are
 required to allow input processing and data gathering to be tailored to
 the version of Flux the instance owner is running, which may be custom.
 Since these plugins are owner-provided, they MUST NOT be used for data
-integrity verification, or in any way modify the user request *U*. The
+integrity verification, or in any way modify the user request *J*. The
 plugins MAY be used to obtain data later used in verification, or otherwise
 interact with the instance.
 
@@ -225,9 +225,9 @@ Request *R'*, it SHALL perform the following verification steps:
 
  1. Verify integrity and authenticity of *R'*
  2. Verify owner has access to assigned resource set
- 3. Verify integrity and authenticity of *U*
- 4. Verify TTL on *R'* and *U*
- 5. Verify recipient field in *U* matches resource owner
+ 3. Verify integrity and authenticity of *J*
+ 4. Verify TTL on *R'* and *J*
+ 5. Verify recipient field in *J* matches resource owner
  6. Verify, if included, that assigned resource set is a strict subset
     of the allowed resource set
 
