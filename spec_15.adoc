@@ -40,7 +40,7 @@ Drawbacks to this monolithic approach include:
  * Security patches and updates require a new release of entire project
 
 In the Flux model, however, an instance runs at most with the credentials
-of the *instance owner*, including all processes running on computational
+of the _instance owner_, including all processes running on computational
 resources of the instance. This design works well for single-user instances
 of Flux, but multi-user capable instances require some mechanism to perform
 privileged operations, most notably when executing work on behalf of a
@@ -131,43 +131,43 @@ When a guest makes a request for a job to a multi-user instance of
 Flux, the guest will create a message with information such as the job
 specification, a time-to-live, and authorized resource owner, and then
 uses IMP client API to sign all fields of the message. The signed message
-becomes the user request token *J* which authorizes the resource owner to
+becomes the user request token *_J_* which authorizes the resource owner to
 execute the request at some point on behalf of the guest.
 
 This signed request then becomes part of the user's job.  When the job is
 scheduled by the instance, the owner assigns a resource set to the job,
 and signs that data _including_ the user's original request. The resource
 owner's signature and the assigned resources, in addition to an additional
-time-to-live, become a job request token *R* which authorizes the guest
+time-to-live, become a job request token *_R_* which authorizes the guest
 user access to the specific resources in the resource set.
 
-This final signed job request token *R* becomes the input to the
+This final signed job request token *_R_* becomes the input to the
 Flux IMP executable. This allows the IMP to verify that the
 resource owner has granted certain resources to a guest user, and that
 the guest has authorized the resource owner to execute specific work on
 their behalf.
 
-The IMP verifies the integrity and authenticity of both *R* and *J*
+The IMP verifies the integrity and authenticity of both *_R_* and *_J_*
 using cryptographic methods provided by plugins.  Once the verification
 step is complete, the privileged IMP will invoke system configured
 plugins for setup and containment, then change credentials to the
 guest user, and finally execute the processes of the job as specified
-in *J*.
+in *_J_*.
 
-In most cases, the IMP will execute a *job shell* on behalf of the user,
-passing the verfied *J* as input to the shell. The shell itself is
+In most cases, the IMP will execute a _job shell_ on behalf of the user,
+passing the verfied *_J_* as input to the shell. The shell itself is
 provided either by the user or by system configuration, but should not be
 provided or modified by the instance owner. The shell re-verifies
-integrity and authenticity of *J* before proceeding, then interprets
-the jobspec contained in *J* to determine the set of tasks to invoke
+integrity and authenticity of *_J_* before proceeding, then interprets
+the jobspec contained in *_J_* to determine the set of tasks to invoke
 on the current resource set.
 
 [NOTE]
-It may be noted that the user's request *J* is verified twice when a job
-shell is invoked, and this is by design. The IMP verifes *J* to avoid
+It may be noted that the user's request *_J_* is verified twice when a job
+shell is invoked, and this is by design. The IMP verifes *_J_* to avoid
 passing tainted input to the job shell, which runs as the guest user.
-The shell re-verifies *J* because it has no guarantee that the caller
-has already done this verification, or that *J* has not been changed
+The shell re-verifies *_J_* because it has no guarantee that the caller
+has already done this verification, or that *_J_* has not been changed
 since any past verification.
 
 Figure 1 below summarizes the overall role of the IMP in a multi-user
@@ -178,15 +178,15 @@ image::data/spec_15/imp.png[width=600]
 
 == Job Request
 
-The proposed contents of the owner's Job Request (*R*) as follows
+The proposed contents of the owner's Job Request (*_R_*) as follows
 
- * User Request (*J*) (described below)
+ * User Request (*_J_*) (described below)
  * Assigned resource set
  * Timestamp and TTL
  * UUID
  * Owner Signature (of above fields)
 
-Where *J* is the User Request or reference to such a request,
+Where *_J_* is the User Request or reference to such a request,
 which SHALL contain
 
  * Jobspec as per link:spec_14{outfilesuffix}[14/Canonical Job Specification]
@@ -207,8 +207,8 @@ Where above fields have the following specific meanings and requirements
  * _Intended recipient_ is set to the instance owner that is the target
    of the request. This ensures that the user's request cannot be
    used by another arbitrary user.
- * The _user signature_ signs all fields of *J*
- * The _owner signature_ signs all fields of *R* _including_ *J*
+ * The _user signature_ signs all fields of *_J_*
+ * The _owner signature_ signs all fields of *_R_* _including_ *_J_*
 
 
 == IMP Internal Operation
@@ -222,39 +222,39 @@ processing any input, including but not limited to
 
  * arguments
  * environment
- * processing of marshaled job request *R* on stdin
+ * processing of marshaled job request *_R_* on stdin
  * connecting to instance to obtain any missing data or data
    referenced by content hash
 
 The underprivileged child then SHALL sanitize and canonicalize the
-job request *R* into *R'*, and SHALL share the canonicalized signed
-*R'* in a safe export of data to the privileged IMP parent.
+job request *_R_* into *_R'_*, and SHALL share the canonicalized signed
+*_R'_* in a safe export of data to the privileged IMP parent.
 
 Instance and IMP interactions SHALL be implemented as a plugin or set
 of plugins, to be provided by the instance owner. These plugins are
 required to allow input processing and data gathering to be tailored to
 the version of Flux the instance owner is running, which may be custom.
 Since these plugins are owner-provided, they MUST NOT be used for data
-integrity verification, or in any way modify the user request *J*. The
+integrity verification, or in any way modify the user request *_J_*. The
 plugins MAY be used to obtain data later used in verification, or otherwise
 interact with the instance.
 
 === Request Verification
 
 Once the privileged IMP process has obtained the canonicalized Job
-Request *R'*, it SHALL perform the following verification steps:
+Request *_R'_*, it SHALL perform the following verification steps:
 
- 1. Verify integrity and authenticity of *R'*
+ 1. Verify integrity and authenticity of *_R'_*
  2. Verify owner has access to assigned resource set
- 3. Verify integrity and authenticity of *J*
- 4. Verify TTL on *R'* and *J*
- 5. Verify recipient field in *J* matches resource owner
+ 3. Verify integrity and authenticity of *_J_*
+ 4. Verify TTL on *_R'_* and *_J_*
+ 5. Verify recipient field in *_J_* matches resource owner
  6. Verify, if included, that assigned resource set is a strict subset
     of the allowed resource set
 
 ==== Resource ownership verification
 
-Resources in Flux are initially owned by the *system owner*, i.e. the
+Resources in Flux are initially owned by the _system owner_, i.e. the
 user which runs the system instance. Typically, this would be some
 special system user, e.g. `flux`. The system owner is the only trusted
 user and resource ownership of requests from this user SHALL NOT require
@@ -270,7 +270,7 @@ following requirements should be met:
  * The IMP's container strategy MUST be hierarchical, such that containers
    for jobs within an instance are created as sub-containers of
    container of the parent.
- * The IMP SHALL keep an original copy of the request *R* as ancillary
+ * The IMP SHALL keep an original copy of the request *_R_* as ancillary
    data for each container.
 
 With the following requirements met, the IMP may verify resource
@@ -288,7 +288,7 @@ data.
 
 === IMP post-verification execution
 
-After *R'* verification is complete, the `flux-security-imp`
+After *_R'_* verification is complete, the `flux-security-imp`
 invokes required job setup code as the superuser. This setup code SHALL
 be implemented as system-installed and verified plugins, and MAY include
 such things as
@@ -320,7 +320,7 @@ ancestors thereof that were started by the owner's instance.
 ==== Flux job prolog and epilog
 
 A multi-user instance of Flux may also require the ability to run job
-*prolog* and *epilog* for jobs. These scripts are typically site-supplied
+_prolog_ and _epilog_ for jobs. These scripts are typically site-supplied
 administrative scripts which are expected to run as a privileged user,
 and therefore will require the IMP to execute. In support of prolog
 and epilog scripts, the IMP has the following requirements:
