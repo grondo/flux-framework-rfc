@@ -40,11 +40,11 @@ Drawbacks to this monolithic approach include:
  * Security patches and updates require a new release of entire project
 
 In the Flux model, however, an instance runs at most with the credentials
-of the _instance owner_, including all processes running on computational
-resources of the instance. This design works well for single-user instances
-of Flux, but multi-user capable instances require some mechanism to perform
-privileged operations, most notably when executing work on behalf of a
-non instance owner (a guest).
+of the _instance owner_ (a normal, unprivileged user), including all
+processes running on computational resources of the instance. This design
+works well for single-user instances of Flux, but multi-user capable
+instances require some mechanism to perform privileged operations, most
+notably when executing work on behalf of a non instance owner (a guest).
 
 In the Flux system, this privilege - along with all related operations - is
 contained within a single service, the _Independent Minister of Privilege_
@@ -101,9 +101,6 @@ design
  * The IMP SHALL be implemented as an executable, `flux-security-imp`,
    which MAY be installed with setuid permissions in cases where multi-user
    Flux is required.
- * The IMP executable SHALL use privilege separation to allow processing
-   of user provided data such as command line options and stdin in an
-   unprivileged process.
  * The IMP SHALL accept and process data using stdin, to avoid putting
    sensitive data on the command line or environment.
 
@@ -174,7 +171,7 @@ Figure 1 below summarizes the overall role of the IMP in a multi-user
 Flux instance.
 
 .Depiction of multi-user Flux IMP overall design. Here user `bob` is the instance owner, and `alice` is a guest.
-image::data/spec_15/imp.png[width=600]
+image::data/spec_15/imp.png[width=600, align=center]
 
 == Job Request
 
@@ -221,7 +218,6 @@ bugs in libraries. For more information on privilege separation, see
 the paper on privilege separated OpenSSH: "Preventing Privilege
 Escalation".
 footnote:[http://www.citi.umich.edu/u/provos/papers/privsep.pdf[Preventing Privilege Escalation], Niels Provos, Markus Friedl, Peter Honeyman.]
-
 
 === Request Verification
 
