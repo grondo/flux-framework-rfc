@@ -215,29 +215,13 @@ Where above fields have the following specific meanings and requirements
 
 === Privilege Separation
 
-When the `flux-security-imp` is invoked _and_ has setuid permissions, it
-SHALL first perform privilege separation. An underprivileged child is
-invoked _as the instance owner_, and this temporary child handles
-processing any input, including but not limited to
+When the IMP is invoked _and_ has setuid privileges, the process MAY
+use privilege separation to limit the impact of programming errors or
+bugs in libraries. For more information on privilege separation, see
+the paper on privilege separated OpenSSH: "Preventing Privilege
+Escalation".
+footnote:[http://www.citi.umich.edu/u/provos/papers/privsep.pdf[Preventing Privilege Escalation], Niels Provos, Markus Friedl, Peter Honeyman.]
 
- * arguments
- * environment
- * processing of marshaled job request *_R_* on stdin
-
-Privilege separation is used to minimize the code running with root
-privileges, and to avoid parsing and processing of possibly untrusted
-data in an address space with elevated privileges. For instance, an
-attacker could attempt to execute the IMP with poorly formatted
-data in an attempt to exploit a weakness in a JSON library. When
-run with privilege separation however, JSON parsing would occur
-with credentials of the user invoking the IMP, thus eliminating any impact
-from a successful exploit.
-
-Once the unprivileged portion of the IMP has parsed all input and
-environment and command line parameters, it SHALL notify the
-privileged process of successful completion and export *R* to
-a place where the privileged process can safely utilize it.
-At this point the unprivileged process MAY exit.
 
 === Request Verification
 
@@ -353,6 +337,4 @@ is still a work in progress.
    being used indefinitely. Finally, the `flux-security-imp` logs all
    invocations, thereby allowing replays to be detected and audited.
 
-[sect2]
-== References
-
+[footnotes]
