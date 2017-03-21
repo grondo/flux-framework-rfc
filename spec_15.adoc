@@ -70,7 +70,7 @@ the following benefits are realized:
 
 === User Roles
 
-For the purposes of this RFC there are three main user roles:
+For the purposes of this RFC there are four main user roles:
 
  owner, instance owner, or resource owner
   The user under which a Flux instance is running, not privileged.
@@ -230,7 +230,7 @@ data in an address space with elevated privileges. For instance, an
 attacker could attempt to execute the IMP with poorly formatted
 data in an attempt to exploit a weakness in a JSON library. When
 run with privilege separation however, JSON parsing would occur
-with credentials of the IMP inoker, thus eliminating any impact
+with credentials of the user invoking the IMP, thus eliminating any impact
 from a successful exploit.
 
 Once the unprivileged portion of the IMP has parsed all input and
