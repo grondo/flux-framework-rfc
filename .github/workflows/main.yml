@@ -50,6 +50,10 @@ jobs:
         mkdir -p ./linkcheck
         echo "${status}" > ./linkcheck/status
         echo ${{ github.event.number }} > ./linkcheck/pr_number
+        if [ -f _build/linkcheck/output.txt ]; then
+          grep -v '\[  ok  \]' _build/linkcheck/output.txt \
+            > ./linkcheck/failures.txt || true
+        fi
         exit 0 # this step should never fail the overall workflow
     - uses: actions/upload-artifact@v4
       with:
